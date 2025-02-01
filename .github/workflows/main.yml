@@ -19,6 +19,10 @@ jobs:
           unzip localtonet-linux-x64.zip
           rm localtonet-linux-x64.zip
 
+      - name: List Localtonet directory
+        run: |
+          ls -la localtonet-linux-x64  # List contents to verify the executable's name and path
+
       - name: Set permissions for Localtonet
         run: |
           chmod +x localtonet-linux-x64/localtonet  # Adjust the path if necessary

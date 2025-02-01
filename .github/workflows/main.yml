@@ -19,19 +19,18 @@ jobs:
           unzip localtonet-linux-x64.zip
           rm localtonet-linux-x64.zip
 
-      - name: List Localtonet directory
+      - name: List current directory
         run: |
-          ls -la localtonet-linux-x64  # List contents to verify the executable's name and path
+          ls -la  # List contents of the current directory to see what was extracted
 
       - name: Set permissions for Localtonet
         run: |
-          chmod +x localtonet-linux-x64/localtonet  # Adjust the path if necessary
+          chmod +x localtonet  # Adjust the path if necessary
 
       - name: Start Localtonet
         env:
           LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
         run: |
-          cd localtonet-linux-x64  # Adjust this if the directory name is different
           ./localtonet -token $LOCALTONET_TOKEN &  # Run in the background
 
   setup-vcmp-server:
@@ -47,9 +46,8 @@ jobs:
 
       - name: Set permissions for VCMP Server
         run: |
-          chmod +x VCMP04_server_v39_linux64/mpsvrrel64  # Adjust the path if necessary
+          chmod +x mpsvrrel64  # Adjust the path if necessary
 
       - name: Start VCMP Server
         run: |
-          cd VCMP04_server_v39_linux64
           ./mpsvrrel64

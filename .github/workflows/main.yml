@@ -31,7 +31,7 @@ jobs:
         env:
           LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
         run: |
-          ./localtonet -token $LOCALTONET_TOKEN &  # Run in the background
+          ./localtonet authtoken $LOCALTONET_TOKEN &  # Run in the background
 
   setup-vcmp-server:
     runs-on: ubuntu-latest

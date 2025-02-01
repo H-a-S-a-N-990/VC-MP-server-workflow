@@ -1,53 +1,48 @@
-name: VCMP Server Setup
+name: Run VCMP Server with Localtonet
 
-on:
-  push:
-    branches:
-      - main  # Change this to your default branch if necessary
+on: [push]
 
 jobs:
-  setup-localtonet:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Download Localtonet
-        run: |
-          wget https://localtonet.com/download/localtonet-linux-x64.zip
-          unzip localtonet-linux-x64.zip
-          rm localtonet-linux-x64.zip
+    - name: Download VCMP Server
+      run: |
+        wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
+        unzip VCMP04_server_v39_linux64.zip
+        rm VCMP04_server_v39_linux64.zip
 
-      - name: List current directory
-        run: |
-          ls -la  # List contents of the current directory to see what was extracted
+    - name: Set permissions for VCMP Server
+      run: |
+        chmod +x mpsvrrel64  # Adjust the path if necessary
 
-      - name: Set permissions for Localtonet
-        run: |
-          chmod +x localtonet  # Adjust the path if necessary
+    - name: Start VCMP Server
+      run: |
+        ./mpsvrrel64 &  # Start VCMP server in the background
 
-      - name: Start Localtonet
-        env:
-          LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
-        run: |
-          ./localtonet authtoken $LOCALTONET_TOKEN &  # Run in the background
+    - name: Delay before starting Localtonet
+      run: sleep 10  # Wait for VCMP Server to initialize
 
-  setup-vcmp-server:
-    runs-on: ubuntu-latest
-    needs: setup-localtonet  # This job depends on the previous job
+    - name: Download Localtonet
+      run: |
+        wget https://localtonet.com/download/localtonet-linux-x64.zip
+        unzip localtonet-linux-x64.zip
+        rm localtonet-linux-x64.zip
 
-    steps:
-      - name: Download VCMP Server
-        run: |
-          wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
-          unzip VCMP04_server_v39_linux64.zip
-          rm VCMP04_server_v39_linux64.zip
+    - name: Set permissions for Localtonet
+      run: |
+        chmod +x localtonet  # Adjust the path if necessary
 
-      - name: Set permissions for VCMP Server
-        run: |
-          chmod +x mpsvrrel64  # Adjust the path if necessary
+    - name: Start Localtonet
+      env:
+        LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
+      run: |
+        ./localtonet authtoken $LOCALTONET_TOKEN | tee localtonet.log &  # Capture output to a log file
 
-      - name: Start VCMP Server
-        run: |
-          ./mpsvrrel64
+    - name: Display Localtonet log
+      run: |
+        cat localtonet.log  # Display the log for troubleshooting

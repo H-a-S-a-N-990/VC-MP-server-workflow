@@ -1,0 +1,41 @@
+name: Run VCMP Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-vcmp-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install required tools
+      run: |
+        sudo apt update
+        sudo apt install -y wget unzip
+
+    - name: Download VCMP Server
+      run: |
+        wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
+        unzip VCMP04_server_v39_linux64.zip
+        chmod 755 mpsvrrel64
+
+    - name: Start VCMP Server
+      env:
+        LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}  # Use your secret token here
+      run: |
+        # Start the VCMP server in the background
+        ./mpsvrrel64 &
+
+        # Wait for the server to start
+        sleep 10
+
+        # Start localtonet to connect the server to the internet
+        ./localtonet --token $LOCALTONET_TOKEN &
+
+        # Keep the job running indefinitely
+        wait

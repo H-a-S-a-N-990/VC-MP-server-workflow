@@ -1,4 +1,4 @@
-name: Run Vcmp with localtonet Tunnel
+name: Run VCMP with Localtonet Tunnel
 
 on: [push]
 
@@ -6,6 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    steps:  # Added 'steps' to define the steps in the job
     - name: Install required tools
       run: |
           wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
@@ -17,7 +18,7 @@ jobs:
           rm localtonet-linux-x64.zip
           chmod 755 localtonet 
 
-    - name: Start Vcmp
+    - name: Start VCMP
       env:
         PORT: 8192
       run: |
@@ -26,7 +27,7 @@ jobs:
     - name: Delay before creating tunnel
       run: sleep 10
 
-    - name: Start localtonet Tunnel
+    - name: Start Localtonet Tunnel
       env:
         LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
       run: |

@@ -1,48 +1,40 @@
-name: Run VCMP Server with Localtonet
+name: Run Vcmp with localtonet Tunnel
 
 on: [push]
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Download VCMP Server
+    - name: Install required tools
       run: |
-        wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
-        unzip VCMP04_server_v39_linux64.zip
-        rm VCMP04_server_v39_linux64.zip
+          wget http://v04.adtec.ovh/server/VCMP04_server_v39_linux64.zip
+          unzip VCMP04_server_v39_linux64.zip
+          rm VCMP04_server_v39_linux64.zip
+          chmod 755 mpsvrrel64
+          wget https://localtonet.com/download/localtonet-linux-x64.zip
+          unzip localtonet-linux-x64.zip
+          rm localtonet-linux-x64.zip
+          chmod 755 localtonet 
 
-    - name: Set permissions for VCMP Server
+    - name: Start Vcmp
+      env:
+        PORT: 8192
       run: |
-        chmod +x mpsvrrel64  # Adjust the path if necessary
+        ./mpsvrrel64 -port $PORT &
 
-    - name: Start VCMP Server
-      run: |
-        ./mpsvrrel64 &  # Start VCMP server in the background
+    - name: Delay before creating tunnel
+      run: sleep 10
 
-    - name: Delay before starting Localtonet
-      run: sleep 10  # Wait for VCMP Server to initialize
-
-    - name: Download Localtonet
-      run: |
-        wget https://localtonet.com/download/localtonet-linux-x64.zip
-        unzip localtonet-linux-x64.zip
-        rm localtonet-linux-x64.zip
-
-    - name: Set permissions for Localtonet
-      run: |
-        chmod +x localtonet  # Adjust the path if necessary
-
-    - name: Start Localtonet
+    - name: Start localtonet Tunnel
       env:
         LOCALTONET_TOKEN: ${{ secrets.LOCALTONET_TOKEN }}
       run: |
-        ./localtonet authtoken $LOCALTONET_TOKEN | tee localtonet.log &  # Capture output to a log file
-
-    - name: Display Localtonet log
-      run: |
-        cat localtonet.log  # Display the log for troubleshooting
+        # Start the tunnel in the background
+        ./localtonet authtoken $LOCALTONET_TOKEN &
+        
+        # Wait for the tunnel to establish
+        sleep 5
+        
+        # Keep the job running indefinitely
+        wait
